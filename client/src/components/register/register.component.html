@@ -1,0 +1,70 @@
+<div class="register-wrapper">
+  <div class="register-card">
+    <h1>הרשמה</h1>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <label class="input-group">
+        <span class="label">שם פרטי</span>
+        <input type="text" formControlName="firstName" placeholder="שם פרטי" />
+        @if (firstName.touched && firstName.invalid) {
+        <small class="error">
+          @if (firstName.errors?.['required']) { שדה חובה. } @if
+          (firstName.errors?.['minlength']) { לפחות 2 תווים. }
+        </small>
+        }
+      </label>
+
+      <label class="input-group">
+        <span class="label">שם משפחה</span>
+        <input type="text" formControlName="lastName" placeholder="שם משפחה" />
+        @if (lastName.touched && lastName.invalid) {
+        <small class="error">
+          @if (lastName.errors?.['required']) { שדה חובה. } @if
+          (lastName.errors?.['minlength']) { לפחות 2 תווים. }
+        </small>
+        }
+      </label>
+
+      <label class="input-group">
+        <span class="label">דוא"ל</span>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+        />
+        @if (email.touched && email.invalid) {
+        <small class="error">
+          @if (email.errors?.['required']) { שדה חובה. } @if
+          (email.errors?.['email']) { כתובת דוא"ל אינה תקינה. }
+        </small>
+        }
+      </label>
+
+      <label class="input-group">
+        <span class="label">סיסמה</span>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="לפחות 6 תווים"
+        />
+        @if (password.touched && password.invalid) {
+        <small class="error">
+          @if (password.errors?.['required']) { שדה חובה. } @if
+          (password.errors?.['minlength']) { הסיסמה קצרה מדי. }
+        </small>
+        }
+      </label>
+
+      <button class="btn" type="submit" [disabled]="submitting">
+        @if (!submitting) 
+        { הרשם } 
+        @if (submitting) 
+        { שולח... }
+      </button>
+
+      <div class="alt-actions">
+        <a routerLink="/login">כבר רשום? התחבר</a>
+      </div>
+    </form>
+  </div>
+</div>

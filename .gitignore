@@ -1,0 +1,8 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# Node / Client
+client/node_modules/
+client/dist/
