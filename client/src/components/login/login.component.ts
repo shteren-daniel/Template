@@ -16,10 +16,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-  ) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   form = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -27,10 +24,10 @@ export class LoginComponent {
       Validators.required,
       Validators.minLength(6),
     ]),
-    remember: new FormControl(false),
   });
 
   submitting = false;
+  serverError = '';
 
   get email() {
     return this.form.get('email')!;
@@ -46,16 +43,22 @@ export class LoginComponent {
     this.submitting = true;
 
     this.authService.login(this.form.getRawValue()).subscribe({
-      next: (res) => {
-        console.log('Login success:', res);
-        localStorage.setItem('token', res.token);
-        this.router.navigate(['/main']);
+      next: (response) => {
+        console.log('Login success:', response);
+        if (response?.success && response.data) {
+          const token = (response.data as any).token;
+          localStorage.setItem('token', token);
+          this.router.navigate(['/main']);
+        } else {
+          this.serverError = 'התחברות נכשלה. נסה שוב מאוחר יותר.';
+        }
       },
       error: (err) => {
         console.error('Login failed:', err);
-        alert('שגיאה בהתחברות');
+        this.serverError =
+          err.error?.message || 'התחברות נכשלה. נסה שוב מאוחר יותר.';
         this.submitting = false;
-      }
+      },
     });
   }
 }

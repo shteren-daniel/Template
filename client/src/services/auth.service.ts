@@ -9,18 +9,17 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  token: string;
-  userId: number;
+  success: boolean;
+  message?: string;
+  data?: object;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(
-    private http: HttpClient, 
-    private configService: ConfigService) {}
+  constructor(private http: HttpClient, private configService: ConfigService) {}
 
   login(data: LoginRequest): Observable<LoginResponse> {
     let apiUrl = this.configService.apiUrl;
-    return this.http.post<LoginResponse>(`${apiUrl}/login`, data);
+    return this.http.post<LoginResponse>(`${apiUrl}/auth/login`, data);
   }
 }

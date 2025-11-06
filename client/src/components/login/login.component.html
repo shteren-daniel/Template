@@ -38,6 +38,12 @@
         @if (!submitting) { התחבר } @if (submitting) { מתחבר… }
       </button>
 
+       @if (serverError) {
+        <div class="server-error" role="alert">
+          {{ serverError }}
+        </div>
+      }
+      
       <div class="alt-actions">
         <a class="link" routerLink="/register">הרשם</a>
       </div>
