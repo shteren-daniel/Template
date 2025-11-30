@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using server.Models;
 using server.Services;
 
 
 namespace server.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase

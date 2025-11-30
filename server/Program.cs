@@ -2,12 +2,19 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using server.Services;
+using server.Extensions;
+using server.Middleware;
 using Microsoft.AspNetCore.Diagnostics;
 using server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -18,35 +25,16 @@ builder.Services.AddCors(options =>
     });
 });
 
-var secretKey = configuration["JwtSettings:SecretKey"];
-var expiry = configuration.GetValue<int>("JwtSettings:ExpiryMinutes");
-builder.Services.AddSingleton(new JwtService(secretKey, expiry));
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddJwtAuthentication(configuration);
 
 var app = builder.Build();
 
-app.UseExceptionHandler(a => a.Run(async context =>
-{
-    var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
-    var response = new ApiResponse<string>
-    {
-        Success = false,
-        Message = "שגיאה פנימית בשרת"
-    };
-
-    context.Response.StatusCode = 500;
-    context.Response.ContentType = "application/json; charset=utf-8";
-    await context.Response.WriteAsJsonAsync(response);
-}));
-
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.UseHttpsRedirection();
-
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
