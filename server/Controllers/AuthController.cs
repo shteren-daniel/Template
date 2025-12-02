@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using server.Models;
 using server.Services;
 
@@ -8,12 +9,18 @@ namespace server.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly UserService _userService;
         private readonly JwtService _jwtService;
         private readonly TokenService _tokenService;
 
-        public AuthController(UserService userService, JwtService jwtService, TokenService tokenService)
+        public AuthController(
+            IConfiguration configuration,
+            UserService userService,
+            JwtService jwtService,
+            TokenService tokenService)
         {
+            _configuration = configuration;
             _userService = userService;
             _jwtService = jwtService;
             _tokenService = tokenService;
@@ -32,8 +39,8 @@ namespace server.Controllers
                 });
 
             var token = _jwtService.GenerateToken(validUser.Email);
+            var expiry = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("JwtSettings:ExpiryMinutes"));
 
-            var expiry = DateTime.UtcNow.AddMinutes(30); // או לפי הגדרת JwtService
             await _tokenService.SaveTokenAsync(validUser.Id, token, expiry);
 
             return Ok(new ApiResponse<object>
