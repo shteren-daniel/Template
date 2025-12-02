@@ -1,11 +1,8 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using server.Services;
 using server.Extensions;
 using server.Middleware;
-using Microsoft.AspNetCore.Diagnostics;
-using server.Models;
+using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -13,6 +10,10 @@ var configuration = builder.Configuration;
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<TokenService>();
+
 
 // CORS
 builder.Services.AddCors(options =>
@@ -26,7 +27,10 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddJwtAuthentication(configuration);
-
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlerMiddleware>();

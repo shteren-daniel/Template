@@ -18,6 +18,7 @@ namespace server.Services
 
         public string GenerateToken(string username)
         {
+            string? tokenStr = null;
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, username)
@@ -32,7 +33,10 @@ namespace server.Services
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            tokenStr = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return tokenStr;
+
         }
     }
 }

@@ -1,42 +1,41 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using server.Models;
 using server.Services;
 
-
 namespace server.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly UserService _userService;
         private readonly JwtService _jwtService;
+        private readonly TokenService _tokenService;
 
-        private List<User> _users = new()
+        public AuthController(UserService userService, JwtService jwtService, TokenService tokenService)
         {
-            new User { Email = "shteren.daniel@gmail.com", Password = "123456" }
-        };
-
-        public AuthController(JwtService jwtService)
-        {
+            _userService = userService;
             _jwtService = jwtService;
+            _tokenService = tokenService;
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] User user)
+        public async Task<IActionResult> Login([FromBody] User user)
         {
-            var validUser = _users.FirstOrDefault(u =>
-                u.Email == user.Email && u.Password == user.Password);
+            var validUser = await _userService.GetUser(user.Email, user.Password);
 
             if (validUser == null)
                 return Unauthorized(new ApiResponse<string>
                 {
                     Success = false,
-                    Message = ("דוא\"ל או סיסמא לא נכונים")
+                    Message = "דוא\"ל או סיסמא לא נכונים"
                 });
 
             var token = _jwtService.GenerateToken(validUser.Email);
+
+            var expiry = DateTime.UtcNow.AddMinutes(30); // או לפי הגדרת JwtService
+            await _tokenService.SaveTokenAsync(validUser.Id, token, expiry);
+
             return Ok(new ApiResponse<object>
             {
                 Success = true,
