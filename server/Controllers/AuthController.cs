@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using server.Models;
 using server.Services;
 
@@ -38,15 +39,40 @@ namespace server.Controllers
                 });
 
             var token = _jwtService.GenerateToken(validUser.Email);
-            var expiry = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("JwtSettings:ExpiryMinutes"));
 
-            await _tokenService.SaveTokenAsync(validUser.Id, token, expiry);
+            await _tokenService.SaveTokenAsync(validUser.Id, token);
 
             return Ok(new ApiResponse<object>
             {
                 Success = true,
                 Message = "התחברת בהצלחה",
                 Data = new { Token = token }
+            });
+        }
+
+        [HttpGet("isTokenExpired")]
+        [Authorize]
+        public async Task<IActionResult> IsTokenExpired()
+        {
+            var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            var token = authHeader.Replace("Bearer ", "");
+
+            var isTokenExpired = await _tokenService.IsTokenExpired(token);
+
+            if (isTokenExpired)
+                return Unauthorized(new ApiResponse<string>
+                {
+                    Success = false,
+                    Message = "החיבור לא בתוקף",
+                    Data = "החיבור לא בתוקף"
+                });
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Message = "חיבור תקין",
+                Data = "חיבור תקין"
+
             });
         }
     }

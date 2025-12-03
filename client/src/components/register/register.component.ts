@@ -25,7 +25,6 @@ export class RegisterComponent {
     if (this.form.valid) {
       console.log('registration payload', this.form.value);
       await new Promise((r) => setTimeout(r, 700));
-      alert('נרשמת בהצלחה!');
     } else {
       this.form.markAllAsTouched();
     }

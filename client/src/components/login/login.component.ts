@@ -47,7 +47,7 @@ export class LoginComponent {
         console.log('Login success:', response);
         if (response?.success && response.data) {
           const token = (response.data as any).token;
-          localStorage.setItem('token', token);
+          this.authService.setToken(token);
           this.router.navigate(['/main']);
         } else {
           this.serverError = 'התחברות נכשלה. נסה שוב מאוחר יותר.';

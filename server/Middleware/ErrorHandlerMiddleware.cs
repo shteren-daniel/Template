@@ -19,7 +19,7 @@ namespace server.Middleware
             {
                 await _next(context);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "application/json; charset=utf-8";
@@ -27,7 +27,8 @@ namespace server.Middleware
                 var response = new ApiResponse<string>
                 {
                     Success = false,
-                    Message = "שגיאה פנימית בשרת"
+                    Message = "שגיאה פנימית בשרת",
+                    Data = ex.Message
                 };
 
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response));
