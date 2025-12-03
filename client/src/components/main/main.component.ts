@@ -23,7 +23,7 @@ export class MainComponent {
       },
       error: (err) => {
         console.error('Login failed:', err);
-        this.isTokenExpired = 'התחברות נכשלה. נסה שוב מאוחר יותר.';
+        this.isTokenExpired = err.error.message;
       },
     });
   }
